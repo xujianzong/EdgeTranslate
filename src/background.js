@@ -18,6 +18,11 @@ import { sendHitRequest } from "./lib/scripts/analytics.js";
 import { sendMessageToCurrentTab } from "./lib/scripts/common.js";
 
 /**
+ * 选中文本TTS语速
+ */
+var selectedTTSSpeed = "fast";
+
+/**
  * default settings for this extension
  */
 const DEFAULT_SETTINGS = {
@@ -31,7 +36,8 @@ const DEFAULT_SETTINGS = {
     // Resize value determine whether the web page will resize when showing translation result
     LayoutSettings: {
         PopupPosition: "right",
-        Resize: false
+        Resize: false,
+        RTL: false
     },
     // Default settings of source language and target language
     languageSetting: { sl: "auto", tl: navigator.language },
@@ -40,7 +46,8 @@ const DEFAULT_SETTINGS = {
         SelectTranslate: true,
         TranslateAfterDblClick: false,
         TranslateAfterSelect: false,
-        UseGoogleAnalytics: false,
+        CancelTextSelection: false,
+        UseGoogleAnalytics: true,
         UsePDFjs: true
     },
     DefaultPageTranslator: "YouDaoPageTranslate"
@@ -53,6 +60,12 @@ chrome.runtime.onInstalled.addListener(function(details) {
     chrome.contextMenus.create({
         id: "translate",
         title: chrome.i18n.getMessage("Translate") + " '%s'",
+        contexts: ["selection"]
+    });
+
+    chrome.contextMenus.create({
+        id: "pronounce",
+        title: chrome.i18n.getMessage("Pronounce") + " '%s'",
         contexts: ["selection"]
     });
 
@@ -130,6 +143,14 @@ chrome.runtime.onInstalled.addListener(function(details) {
                 message: chrome.i18n.getMessage("DataCollectionNotice")
             });
 
+            // 告知用户数据收集相关信息
+            chrome.notifications.create("data_collection_notification", {
+                type: "basic",
+                iconUrl: "./icon/icon128.png",
+                title: chrome.i18n.getMessage("AppName"),
+                message: chrome.i18n.getMessage("DataCollectionNotice")
+            });
+
             // 尝试发送安装事件
             setTimeout(() => {
                 sendHitRequest("background", "event", {
@@ -190,6 +211,12 @@ chrome.runtime.onStartup.addListener(function() {
     chrome.contextMenus.create({
         id: "translate",
         title: chrome.i18n.getMessage("Translate") + " '%s'",
+        contexts: ["selection"]
+    });
+
+    chrome.contextMenus.create({
+        id: "pronounce",
+        title: chrome.i18n.getMessage("Pronounce") + " '%s'",
         contexts: ["selection"]
     });
 
@@ -261,6 +288,14 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
                 showTranslate(result, tab);
             }); // 此api位于 translate.js中
             break;
+        case "pronounce":
+            pronounce(info.selectionText, "auto", selectedTTSSpeed, null);
+            if (selectedTTSSpeed === "fast") {
+                selectedTTSSpeed = "slow";
+            } else {
+                selectedTTSSpeed = "fast";
+            }
+            break;
         // case "translate_page":
         //     translatePage();
         //     break;
@@ -330,7 +365,16 @@ chrome.runtime.onMessage.addListener(function(message, sender, callback) {
                 });
                 break;
             case "pronounce":
-                pronounce(message.text, message.language, message.speed, callback);
+                if (message.speed) {
+                    pronounce(message.text, message.language, message.speed, callback);
+                } else {
+                    pronounce(message.text, message.language, selectedTTSSpeed, callback);
+                    if (selectedTTSSpeed === "fast") {
+                        selectedTTSSpeed = "slow";
+                    } else {
+                        selectedTTSSpeed = "fast";
+                    }
+                }
                 break;
             // case "youdao_page_translate":
             //     youdaoPageTranslate(message.request, callback);

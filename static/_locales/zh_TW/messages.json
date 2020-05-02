@@ -67,6 +67,14 @@
         "message": "音標",
         "description": "音標"
     },
+    "Pronounce": {
+        "message": "朗讀",
+        "description": "朗讀"
+    },
+    "PronounceSelected": {
+        "message": "朗讀選中文本",
+        "description": "朗讀選中文本"
+    },
     "PronounceOriginal": {
         "message": "朗讀原始文本",
         "description": "朗讀原始文本"
@@ -165,7 +173,11 @@
     },
     "ResizeSetting": {
         "message": "收縮頁面",
-        "description": "Resize page to avoid occlude original content"
+        "description": "收縮頁面以防止翻譯框遮擋內容。"
+    },
+    "RTLSetting": {
+        "message": "從右到左的佈局",
+        "description": "在某些語言下從右到左顯示內容。"
     },
     "OtherSettings": {
         "message": "其他設定",
@@ -187,6 +199,10 @@
         "message": "雙擊單詞立即翻譯",
         "description": "雙擊單詞後立即展示翻譯結果"
     },
+    "CancelTextSelection": {
+        "message": "翻譯後取消文本選擇",
+        "description": "翻譯後自動取消文本選擇"
+    },
     "YouDaoPageTranslate": {
         "message": "有道網頁翻譯",
         "description": "使用有道翻譯的api翻譯當前頁面。"
@@ -198,6 +214,10 @@
     "TranslatePage": {
         "message": "翻譯此頁",
         "description": "使用默認網頁翻譯引擎翻譯此頁。"
+    },
+    "CancelPageTranslate": {
+        "message": "取消頁面翻譯",
+        "description": "取消頁面翻譯。"
     },
     "TranslatePageYouDao": {
         "message": "使用有道翻譯此頁",
@@ -211,7 +231,7 @@
         "message": "提供統計數據幫助我們改進插件",
         "description": "啟用Google Analytics服務協助開發者改進側邊翻譯"
     },
-    "PrivacyPolicy":{
+    "PrivacyPolicy": {
         "message": "隱私政策",
         "description": "隱私政策。"
     },
