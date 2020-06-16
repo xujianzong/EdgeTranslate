@@ -14,7 +14,6 @@ import {
     removeDomainBlacklist,
     updateBLackListMenu
 } from "./lib/scripts/blacklist.js";
-import { sendHitRequest } from "./lib/scripts/analytics.js";
 import { sendMessageToCurrentTab } from "./lib/scripts/common.js";
 
 /**
@@ -47,7 +46,6 @@ const DEFAULT_SETTINGS = {
         TranslateAfterDblClick: false,
         TranslateAfterSelect: false,
         CancelTextSelection: false,
-        UseGoogleAnalytics: true,
         UsePDFjs: true
     },
     DefaultPageTranslator: "YouDaoPageTranslate"
@@ -135,29 +133,10 @@ chrome.runtime.onInstalled.addListener(function(details) {
     // 只有在生产环境下，才会展示说明页面
     if (process.env.NODE_ENV === "production") {
         if (details.reason === "install") {
-            // 告知用户数据收集相关信息
-            chrome.notifications.create("data_collection_notification", {
-                type: "basic",
-                iconUrl: "./icon/icon128.png",
-                title: chrome.i18n.getMessage("AppName"),
-                message: chrome.i18n.getMessage("DataCollectionNotice")
+            // 导向《致火狐用户》
+            chrome.tabs.create({
+                url: chrome.i18n.getMessage("ToFirefoxUsersLink")
             });
-
-            // 告知用户数据收集相关信息
-            chrome.notifications.create("data_collection_notification", {
-                type: "basic",
-                iconUrl: "./icon/icon128.png",
-                title: chrome.i18n.getMessage("AppName"),
-                message: chrome.i18n.getMessage("DataCollectionNotice")
-            });
-
-            // 尝试发送安装事件
-            setTimeout(() => {
-                sendHitRequest("background", "event", {
-                    ec: "installation", // event category
-                    ea: "installation" // event label
-                });
-            }, 10 * 60 * 1000); // 10 min
         } else if (details.reason === "update") {
             // 从旧版本更新，引导用户查看更新日志
             chrome.notifications.create("update_notification", {
@@ -167,10 +146,6 @@ chrome.runtime.onInstalled.addListener(function(details) {
                 message: chrome.i18n.getMessage("ExtensionUpdated")
             });
         }
-
-        chrome.tabs.create({
-            url: chrome.i18n.getMessage("ToFirefoxUsersLink")
-        });
 
         // 卸载原因调查
         chrome.runtime.setUninstallURL("https://wj.qq.com/s2/3265930/8f07/");
@@ -186,12 +161,6 @@ chrome.notifications.onClicked.addListener(function(notificationId) {
             chrome.tabs.create({
                 // 为releases页面创建一个新的标签页
                 url: "https://github.com/EdgeTranslate/EdgeTranslate/releases"
-            });
-            break;
-        case "data_collection_notification":
-            chrome.tabs.create({
-                // 为设置页面单独创建一个标签页
-                url: chrome.runtime.getURL("options/options.html#google-analytics")
             });
             break;
         default:
@@ -409,11 +378,6 @@ chrome.commands.onCommand.addListener(function(command) {
             break;
     }
 });
-
-// send basic hit data to google analytics
-setTimeout(() => {
-    sendHitRequest("background", "pageview", null);
-}, 1000);
 
 /**
  * assign default value to settings which are undefined in recursive way
